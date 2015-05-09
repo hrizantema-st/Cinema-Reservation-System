@@ -33,6 +33,18 @@ class CinemaDatabaseManager:
     WHERE projection_id = ?;
     """
 
+    GET_ALL_FREE_SEATS_BY_PROJECTION_ID = """
+    SELECT row, column FROM reservations WHERE projection_id = ?
+    """
+
+    ADD_NEW_RESERVATION = """
+    INSERT INTO reservations (username, projection_id, row, column) VALUES(?, ?, ?, ?)
+    """
+
+    DELETE_RESERVATION_BY_NAME = """
+    DELETE FROM reservations WHERE username = ?
+    """
+
     def get_all_movies(self):
         cursor = self.__conn.cursor()
         result = cursor.execute(self.__class__.GET_ALL_MOVIES_QUERY)
@@ -61,6 +73,18 @@ class CinemaDatabaseManager:
             self.__class__.GET_NUMBER_OF_FREE_SEATS_BY_PROJECTION_ID, (projection_id, ))
         return result.fetchone()
 
-
     def show_all_available_spots_matrix(self, projection_id):
-        pass
+        cursor = self.__conn.cursor()
+        result = cursor.execute(
+            self.__class__.GET_ALL_FREE_SEATS_BY_PROJECTION_ID, (projection_id, ))
+        return result.fetchall()
+
+    def add_new_reservation(self, username, projection_id, row, column):
+        cursor = self.__conn.cursor()
+        cursor.execute(
+            self.__class__.ADD_NEW_RESERVATION, (username, projection_id, row, column))
+
+    def delete_reservation(self, username):
+        cursor = self.__conn.cursor()
+        cursor.execute(
+            self.__class__.DELETE_RESERVATION_BY_NAME, (username, ))
