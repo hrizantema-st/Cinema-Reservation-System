@@ -1,3 +1,5 @@
+import settings
+
 class CinemaDatabaseManager:
 
     def __init__(self, conn):
@@ -22,14 +24,15 @@ class CinemaDatabaseManager:
     """
 
     GET_TABLE_OF_FREE_SEATS_BY_MOVIE_ID = """
-    SELECT "[" || b.id || "]  -  " || b.data || " " ||   b.time || " (" ||  b.type || ") "  || (100 - count(c.projection_id)) ||" spots available" as proj_for_current_movie
+    SELECT "[" || b.id || "]  -  " || b.data || " " ||   b.time || " (" ||  b.type || ") "  || (SIZE*SIZE - count(c.projection_id)) ||" spots available" as proj_for_current_movie
     FROM  projections as b
     LEFT JOIN reservations as c  ON b.id = c.projection_id
     WHERE b.movie_id = ?
     GROUP BY c.projection_id;
     """
+
     GET_NUMBER_OF_FREE_SEATS_BY_PROJECTION_ID = """
-    SELECT (100 - COUNT(projection_id)) as free_seats_for_pr FROM reservations
+    SELECT (SIZE*SIZE - COUNT(projection_id)) as free_seats_for_pr FROM reservations
     WHERE projection_id = ?;
     """
 
