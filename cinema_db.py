@@ -1,3 +1,5 @@
+import settings
+
 class CinemaDatabaseManager:
 
     def __init__(self, conn):
@@ -22,15 +24,28 @@ class CinemaDatabaseManager:
     """
 
     GET_TABLE_OF_FREE_SEATS_BY_MOVIE_ID = """
-    SELECT "[" || b.id || "]  -  " || b.data || " " ||   b.time || " (" ||  b.type || ") "  || (100 - count(c.projection_id)) ||" spots available" as proj_for_current_movie
+    SELECT "[" || b.id || "]  -  " || b.data || " " ||   b.time || " (" ||  b.type || ") "  || (SIZE*SIZE - count(c.projection_id)) ||" spots available" as proj_for_current_movie
     FROM  projections as b
     LEFT JOIN reservations as c  ON b.id = c.projection_id
     WHERE b.movie_id = ?
     GROUP BY c.projection_id;
     """
+
     GET_NUMBER_OF_FREE_SEATS_BY_PROJECTION_ID = """
-    SELECT (100 - COUNT(projection_id)) as free_seats_for_pr FROM reservations
+    SELECT (SIZE*SIZE - COUNT(projection_id)) as free_seats_for_pr FROM reservations
     WHERE projection_id = ?;
+    """
+
+    GET_ALL_FREE_SEATS_BY_PROJECTION_ID = """
+    SELECT row, column FROM reservations WHERE projection_id = ?
+    """
+
+    ADD_NEW_RESERVATION = """
+    INSERT INTO reservations (username, projection_id, row, column) VALUES(?, ?, ?, ?)
+    """
+
+    DELETE_RESERVATION_BY_NAME = """
+    DELETE FROM reservations WHERE username = ?
     """
 
     def get_all_movies(self):
@@ -61,6 +76,18 @@ class CinemaDatabaseManager:
             self.__class__.GET_NUMBER_OF_FREE_SEATS_BY_PROJECTION_ID, (projection_id, ))
         return result.fetchone()
 
-
     def show_all_available_spots_matrix(self, projection_id):
-        pass
+        cursor = self.__conn.cursor()
+        result = cursor.execute(
+            self.__class__.GET_ALL_FREE_SEATS_BY_PROJECTION_ID, (projection_id, ))
+        return result.fetchall()
+
+    def add_new_reservation(self, username, projection_id, row, column):
+        cursor = self.__conn.cursor()
+        cursor.execute(
+            self.__class__.ADD_NEW_RESERVATION, (username, projection_id, row, column))
+
+    def delete_reservation(self, username):
+        cursor = self.__conn.cursor()
+        cursor.execute(
+            self.__class__.DELETE_RESERVATION_BY_NAME, (username, ))
