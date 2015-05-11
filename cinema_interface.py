@@ -1,3 +1,8 @@
+from settings import CINEMA_SIZE
+from settings import HELP_INFO
+from ast import literal_eval as make_tuple
+
+
 class CliInterface:
 
     def __init__(self, cinema_manager):
@@ -9,6 +14,7 @@ class CliInterface:
             if len(command_list) == 1:
                 if command_list[0] == "show_movies":
                     self.show_movies()
+                    break
                 elif command_list[0] == "finalize":
                     for seat in for_finalize["list_of_seats"]:
                         reserve_row = seat[0]
@@ -23,66 +29,84 @@ class CliInterface:
                     for_finalize = self.make_reservation()
                 elif command_list[0] == "help":
                     self.helper()
+                    break
+                else:
+                    print("No such command!")
+                    break
             elif len(command_list) == 2:
                 if command_list[0] == "show_movie_projections":
                     self.get_all_movies_by_id(command_list[1])
+                    break
                 elif command_list[0] == "cancel_reservation":
                     self.__cinema.delete_reservation(command_list[1])
+                    break
+                else:
+                    print("No such command!")
+                    break
             elif len(command_list) == 3:
                 if command_list[0] == "show_movie_projections":
                     self.get_all_movies_by_id_and_date(
                         command_list[1], command_list[2])
+                    break
+                else:
+                    print("No such command!")
+                    break;
             else:
                 print("No such command!")
+                break
 
     def start(self):
         while True:
-            command = input("Enter command")
+            command = input("Enter command: ")
             self.__command_dispatcher(command)
 
     def show_movies(self):
         all_movies = self.__cinema.get_all_movies()
-        print("\n".join([movie["name"] for movie in all_movies]))
+        print("Current movies:")
+        for movie in all_movies:
+            print(movie["movie_info"])
+        #print("\n".join([movie["name"] for movie in all_movies]))
 
     def get_all_movies_by_id(self, num):
         by_id = self.__cinema.get_all_movies_by_id(num)
         if len(by_id) > 0:
-            print(by_id)
+            for proj_by_id in by_id:
+                print(proj_by_id["proj_for_current_movie"])
         else:
             print ("Invalid input!")
 
     def get_all_movies_by_id_and_date(self, num, date):
         by_id_and_date = self.__cinema.get_all_movies_by_id_and_date(num, date)
         if len(by_id_and_date) > 0:
-            print(by_id_and_date)
+            for movie_by_id_and_date in by_id_and_date:
+                print(movie_by_id_and_date["proj_for_current_movie"])
         else:
             print ("Invalid input!")
 
     def how_many_free_seats(self, projection_id, number_of_tickets):
-        number_of_free_seats = self.__cinema.get_num_of_free_seats_by_projection_id(
+        number_of_free_seats = self.__cinema.get_num_of_seats_by_projection_id(
             projection_id)
-        if number_of_free_seats < number_of_tickets:
+        if int(number_of_free_seats[0]) < int(number_of_tickets):
             return False
         return True
 
     def matrix_print(self, seats):
+        list_of_lists = []
+        for row in range(0, 10):
+            new_row = []
+            for elem in range(0, 10):
+                new_row.append(".")
+            list_of_lists.append(new_row)
 
-    list_of_lists = []
-    for row in range(0, 10):
-        new_row = []
-        for elem in range(0, 10):
-            new_row.append(".")
-        list_of_lists.append(new_row)
+        for seat in seats:
+            i = seat['row'] - 1
+            j = seat['column'] - 1
+            list_of_lists[i][j] = "X"
 
-    for seat in seats:
-        i = seat['row'] - 1
-        j = seat['column'] - 1
-        list_of_lists[i][j] = "X"
+        for each in list_of_lists:
+            print(each)
 
-    for each in list_of_lists:
-        print(each)
-
-    return matrix
+        return list_of_lists
 
     def make_reservation(self):
         reservation_name = input("Choose name: ")
@@ -102,11 +126,12 @@ class CliInterface:
         matrix = self.matrix_print(list_of_not_available_seats)
         count = 0
         list_of_reserved_seats = []
-        while count < number_of_tickets:
-            seat_tuple = input("Choose a seat: ")
-            if matrix[seat_tuple[0] - 1][seat_tuple[1] - 1] == 'X':
+        while int(count) < int(number_of_tickets):
+            seat_tuple_str = input("Choose a seat: ")
+            seat_tuple = make_tuple(seat_tuple_str)
+            if matrix[int(seat_tuple[0]) - 1][int(seat_tuple[1]) - 1] == 'X':
                 print("This seat is taken")
-            elif seat_tuple[0] > 10 or seat_tuple[0] < 1 or seat_tuple[1] > 10 or seat_tuple[1] < 1:
+            elif int(seat_tuple[0]) > 10 or int(seat_tuple[0]) < 1 or int(seat_tuple[1]) > 10 or int(seat_tuple[1]) < 1:
                 print("There is no such seat")
             else:
                 count += 1
@@ -118,4 +143,4 @@ class CliInterface:
         return res
 
     def helper(self):
-        pass
+        print(HELP_INFO)
