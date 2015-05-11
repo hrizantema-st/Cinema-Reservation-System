@@ -10,8 +10,10 @@ class CliInterface:
 
     def __command_dispatcher(self, command):
         command_list = command.split(" ")
+	if command_list[0] == "exit":
+            return False
         if len(command_list) == 1:
-            if command_list[0] == "show_movies":
+            elif command_list[0] == "show_movies":
                 self.show_movies()
             elif command_list[0] == "finalize":
                 for seat in for_finalize["list_of_seats"]:
@@ -23,8 +25,6 @@ class CliInterface:
                 start_over = input("Do you wan to start over? yes/no: ")
                 if start_over == 'yes':
                     self.make_reservation()
-                else:
-                    print("Your reservation wasn't saved!")
             elif command_list[0] == 'make_reservation':
                 for_finalize = self.make_reservation()
             elif command_list[0] == "help":
@@ -45,8 +45,6 @@ class CliInterface:
         while True:
             command = input("Enter command")
             self.__command_dispatcher(command)
-            if command == "exit":
-                return False
 
     def show_movies(self):
         all_movies = self.__cinema.get_all_movies()
