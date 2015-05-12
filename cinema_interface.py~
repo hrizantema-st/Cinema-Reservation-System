@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 from settings import SIZE
+=======
+from settings import CINEMA_SIZE
+>>>>>>> master
 from settings import HELP_INFO
 from ast import literal_eval as make_tuple
 
@@ -14,7 +18,11 @@ class CliInterface:
             if command_list[0] == "show_movies":
                 self.show_movies()
             elif command_list[0] == "finalize":
-                print("You don't have a reservation to finalize.")
+                for seat in for_finalize["list_of_seats"]:
+                    reserve_row = seat[0]
+                    reserve_column = seat[1]
+                    self.__cinema.add_new_reservation(for_finalize["res_name"], for_finalize[
+                                                      "projection_id"], reserve_row, reserve_column)
             elif command_list[0] == 'give_up':
                 start_over = input("Do you wan to start over? yes/no: ")
                 if start_over == 'yes':
@@ -23,15 +31,6 @@ class CliInterface:
                     print("Your reservation wasn't saved!")
             elif command_list[0] == 'make_reservation':
                 for_finalize = self.make_reservation()
-                command = input("Enter command: ")
-                if command == 'finalize':
-                    for seat in for_finalize["list_of_seats"]:
-                        reserve_row = seat[0]
-                        reserve_column = seat[1]
-                        self.__cinema.add_new_reservation(for_finalize["res_name"], for_finalize[
-                            "projection_id"], reserve_row, reserve_column)
-                else:
-                    self.__command_dispatcher(command)
             elif command_list[0] == "help":
                 self.helper()
         elif len(command_list) == 2:
@@ -45,6 +44,7 @@ class CliInterface:
                     command_list[1], command_list[2])
         else:
             print("No such command!")
+
 
     def start(self):
         while True:
@@ -122,10 +122,10 @@ class CliInterface:
         while int(count) < int(number_of_tickets):
             seat_tuple_str = input("Choose a seat: ")
             seat_tuple = make_tuple(seat_tuple_str)
-            if int(seat_tuple[0]) > 10 or int(seat_tuple[0]) < 1 or int(seat_tuple[1]) > 10 or int(seat_tuple[1]) < 1:
-                print("There is no such seat")
-            elif matrix[int(seat_tuple[0]) - 1][int(seat_tuple[1]) - 1] == 'X':
+            if matrix[int(seat_tuple[0]) - 1][int(seat_tuple[1]) - 1] == 'X':
                 print("This seat is taken")
+            elif int(seat_tuple[0]) > 10 or int(seat_tuple[0]) < 1 or int(seat_tuple[1]) > 10 or int(seat_tuple[1]) < 1:
+                print("There is no such seat")
             else:
                 count += 1
                 list_of_reserved_seats.append(seat_tuple)
@@ -133,7 +133,6 @@ class CliInterface:
         res["res_name"] = reservation_name
         res["list_of_seats"] = list_of_reserved_seats
         res["projection_id"] = wanted_projection_id
-        print("If you want to save your reservation type finalize")
         return res
 
     def helper(self):
