@@ -1,6 +1,6 @@
 DB_NAME = "cinema.db"
 SQL_FILE = "cinema_tables.sql"
-CINEMA_SIZE = 10
+SIZE = 10
 HELP_INFO = """
 *spell show_movies - print all movies
 *spell show_movie_projections <movie_id> [<date>] - print all projections of a given movie for the given date (date is optional);
